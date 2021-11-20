@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+from streamlit_observable import observable
 import plotly.graph_objects as go
 from PIL import Image
 
@@ -44,3 +45,23 @@ fig.update_layout({"title": '',
 
 st.plotly_chart(fig, use_container_width = True)
 
+#with st.echo():
+    #@st.cache
+def get_calendar_data():
+    return pd.read_csv("https://raw.githubusercontent.com/astenast/Smartphone_User_Engagement/main/data/calendar_user_389_final.csv?token=AMWUYUNDOQME4QGHBVX3MVTBUKLDI")
+
+calendar_data = get_calendar_data()
+
+#st.dataframe(calendar_data) shows the data lol
+
+#with st.echo():
+
+observable("General", 
+    notebook="@astenast/digital_media_project",
+    targets=["other"], #"chart", "key" "chart2", "chart3", "chart4", "chart5", "other"
+)
+
+observable("Calendar", 
+    notebook="@astenast/digital_media_project",
+    targets=["chart"], #"chart", "key" "chart2", "chart3", "chart4", "chart5", "other"
+)
