@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 from PIL import Image
+import calendar_d3, classification, patterns, details
 
 @st.cache(allow_output_mutation=True)
 def get_data():
@@ -24,23 +25,34 @@ st.set_page_config(page_title="Smartphone Addiction Tracker", page_icon=':chart_
 
 html_temp ="""
     <div style="background-color:#9EA2FF;padding:1.5px">
-    <font color=\"#000000\" size=\"32\"><strong><center>Smartphone Addiction Tracker</center></strong></font>
+    <font color=\"#FFFFFF\" size=\"32\"><strong><center>Smartphone Addiction Tracker</center></strong></font>
     </div><br>"""
 st.markdown(html_temp, unsafe_allow_html=True)
 
 df = get_data()
 
-df_3633 = df[(df.user_id == 3633) & (df.year == 2017)].sort_values(['date', 'hour_period'])
+PAGES = {
+    "Calendar": calendar_d3,
+    "Classification": classification,
+    "Patterns Detection": patterns,
+    "Technical Details": details
+}
 
+st.sidebar.title('User Selection')
+option = st.sidebar.selectbox(
+    'Pick a user id from the list:',
+    ('389', 'user2', 'user3'))
 
-fig = go.Figure(data=go.Scatter(x=df_3633['date'].astype(dtype=str)+df_3633['hour_period'].astype(dtype=str), 
-                                y=df_3633['duration_min'],
-                                marker_color='white'))
+st.sidebar.title('Navigation')
+selection = st.sidebar.radio("Go to", list(PAGES.keys()))
+page = PAGES[selection]
 
-fig.update_layout({"title": '',
-                   "xaxis": {"title":"Time"},
-                   "yaxis": {"title":"Duration"},
-                   "showlegend": False})
-
-st.plotly_chart(fig, use_container_width = True)
+if page == calendar_d3:
+    page(df)
+elif page == classification:
+    page.app(df)
+elif page == patterns:
+    page.app(df)
+elif page == details:
+    page.app()
 
