@@ -1,0 +1,111 @@
+import streamlit as st
+import pandas as pd
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
+
+cats = [
+    '00:00-01:00', '01:00-02:00', '02:00-03:00', '03:00-04:00', '04:00-05:00','05:00-06:00', '06:00-07:00', '07:00-08:00',
+    '08:00-09:00', '09:00-10:00', '10:00-11:00','11:00-12:00', '12:00-13:00', '13:00-14:00','14:00-15:00', '15:00-16:00', 
+    '16:00-17:00', '17:00-18:00', '18:00-19:00', '19:00-20:00','20:00-21:00', '21:00-22:00', '22:00-23:00','23:00-24:00'
+    ]
+
+days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+@st.cache(allow_output_mutation=True)
+def get_data(user):
+    df = pd.read_csv('data/sample_data_hour.csv').\
+            drop(columns=['Unnamed: 0'])
+    high = pd.read_csv('data/high_group.csv').\
+            drop(columns=['Unnamed: 0'])
+
+    user = df[(df.user_id == int(user))].\
+                sort_values(['date', 'hour_period']).\
+                reset_index(drop=True)\
+                [['day', 'hour_period','duration_min']]
+
+    all_hours = pd.DataFrame(cats, columns=['hour_period'])
+
+    all_hours_daily_df = \
+            pd.merge(user[['day']].drop_duplicates(),
+            all_hours[['hour_period']].drop_duplicates(),
+            how = 'cross')
+
+    user = \
+        user.\
+        merge(all_hours_daily_df,
+        how='right').\
+        fillna({'duration_min': 0}).\
+        reset_index(drop = True)
+
+    user = user.\
+            groupby(['day', 'hour_period'])\
+            ['duration_min'].\
+            mean().\
+            reset_index(name='Avg duration')
+    user['day'] = pd.Categorical(user['day'], categories=days, ordered=True)
+    user.sort_values(['day', 'hour_period'], inplace=True)
+
+    return user, high
+
+def app(user):    
+
+    user_df, high_df = get_data(user)
+
+    left, right = st.columns(2)
+
+    with left:
+        st.header("Patterns Detection")
+
+        fig = make_subplots(rows=7, cols=1, shared_xaxes=True, shared_yaxes=True)
+        xpoints = {}
+
+        for i, day in enumerate(user_df.day.unique()):
+            periods = []
+            df_tmp = user_df[(user_df.day == day)]
+            fig.add_trace(go.Scatter(x=df_tmp['hour_period'].astype(dtype=str), 
+                                    y=df_tmp['Avg duration'], fill='tozeroy',  name=day),
+                    row=i+1, col=1)
+
+            for period in df_tmp.hour_period.unique():
+
+                extreme_dur = high_df[(high_df.day == days[i]) & (high_df.hour_period == period)]['Avg duration'].values[0]
+                
+                duration = df_tmp[df_tmp.hour_period ==  period]['Avg duration'].values[0]
+
+                if (extreme_dur > 0) & (duration > 0):
+
+                    if (duration >= extreme_dur):
+                        periods.append(period)
+
+            xpoints[i] = periods
+
+
+        shapes_lst = []
+
+        for i, vals in xpoints.items():
+            if len(vals) > 0:
+                for val in vals:
+                    if i == 0:
+                        shapes_lst.append(dict(type='rect', xref='x', yref='y',
+                                x0=val, x1=val, y0=0.2, y1=5, line=dict(
+                                            color="Red",
+                                            width=20,
+                                        ), opacity=0.4, line_width=1, layer='below'))    
+                    else:
+                        shapes_lst.append(dict(type='rect', xref=f'x{i+1}', yref=f'y{i+1}',
+                                    x0=val, x1=val, y0=0.2, y1=5, line=dict(
+                                            color="Red",
+                                            width=10,
+                                        ), opacity=0.4, line_width=20, layer='below'))
+
+        fig.update_layout(
+                shapes=shapes_lst, height=1000)
+
+        fig.for_each_yaxis(lambda x: x.update(showgrid=False))
+        st.plotly_chart(fig, use_container_width=True)
+    
+    with right:
+        st.header('Activity Overview')
+
+
+

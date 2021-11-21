@@ -42,7 +42,7 @@ PAGES = {
 }
 
 st.sidebar.title('User Selection')
-option = st.sidebar.selectbox(
+user = st.sidebar.selectbox(
     'Pick a user id from the list:',
     ('389', 'user2', 'user3'))
 
@@ -53,9 +53,9 @@ page = PAGES[selection]
 if page == calendar_d3:
     page.app()
 elif page == classification:
-    page.app(df)
+    page.app()
 elif page == patterns:
-    page.app(df)
+    page.app(user)
 elif page == details:
     page.app()
 
