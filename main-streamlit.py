@@ -27,7 +27,7 @@ def get_data():
 st.set_page_config(page_title="Smartphone Addiction Tracker", page_icon=':chart_with_upwards_trend:', layout="wide")
 
 html_temp ="""
-    <div style="background-color:#9EA2FF;padding:1.5px">
+    <div style="background-color:#778AAE;padding:1.5px">
     <font color=\"#FFFFFF\" size=\"32\"><strong><center>Smartphone Addiction Tracker</center></strong></font>
     </div><br>"""
 st.markdown(html_temp, unsafe_allow_html=True)

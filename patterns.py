@@ -51,19 +51,25 @@ def app(user):
 
     user_df, high_df = get_data(user)
 
-    left, right = st.columns(2)
+    st.header("Patterns Detection")
+
+    left, right = st.columns([1,3])
 
     with left:
-        st.header("Patterns Detection")
 
-        fig = make_subplots(rows=7, cols=1, shared_xaxes=True, shared_yaxes=True)
+        st.markdown('Explain plot and highlighted areas.')
+
+    with right:
+
+        fig = make_subplots(rows=7, cols=1, shared_xaxes=True, subplot_titles=days, vertical_spacing=0.05)
         xpoints = {}
 
         for i, day in enumerate(user_df.day.unique()):
             periods = []
             df_tmp = user_df[(user_df.day == day)]
             fig.add_trace(go.Scatter(x=df_tmp['hour_period'].astype(dtype=str), 
-                                    y=df_tmp['Avg duration'], fill='tozeroy',  name=day),
+                                     y=df_tmp['Avg duration'], fill='tonexty',  name=day, fillcolor='rgba(145, 211, 199, 0.6)',
+                                     mode='lines', line_color='rgb(145, 211, 199)'),
                     row=i+1, col=1)
 
             for period in df_tmp.hour_period.unique():
@@ -87,25 +93,25 @@ def app(user):
                 for val in vals:
                     if i == 0:
                         shapes_lst.append(dict(type='rect', xref='x', yref='y',
-                                x0=val, x1=val, y0=0.2, y1=5, line=dict(
-                                            color="Red",
+                                x0=val, x1=val, y0=0, y1=8, line=dict(
+                                            color="rgb(228,26,28)",
                                             width=20,
                                         ), opacity=0.4, line_width=1, layer='below'))    
                     else:
                         shapes_lst.append(dict(type='rect', xref=f'x{i+1}', yref=f'y{i+1}',
-                                    x0=val, x1=val, y0=0.2, y1=5, line=dict(
-                                            color="Red",
+                                    x0=val, x1=val, y0=0, y1=8, line=dict(
+                                            color="rgb(228,26,28)",
                                             width=10,
                                         ), opacity=0.4, line_width=20, layer='below'))
 
         fig.update_layout(
-                shapes=shapes_lst, height=1000)
+                shapes=shapes_lst, height=1500, showlegend=False)
 
         fig.for_each_yaxis(lambda x: x.update(showgrid=False))
+        fig.update_yaxes(range=[0,8])
         st.plotly_chart(fig, use_container_width=True)
     
-    with right:
-        st.header('Activity Overview')
+    st.header('Activity Overview')
 
 
 
