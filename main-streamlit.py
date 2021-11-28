@@ -53,7 +53,7 @@ page = PAGES[selection]
 if page == calendar_d3:
     page.app()
 elif page == classification:
-    page.app()
+    page.app(user)
 elif page == patterns:
     page.app(user)
 elif page == details:
