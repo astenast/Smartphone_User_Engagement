@@ -42,7 +42,12 @@ def get_data(user, option):
 
     return session_df, duration_df
 
-def app(user):  
+def app():  
+
+    st.sidebar.title('User Selection')
+    user = st.sidebar.selectbox(
+        'Pick a user id from the list:',
+        ('389', '6323', '2437'))
 
     st.header("User Classification")
 

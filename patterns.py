@@ -47,9 +47,16 @@ def get_data(user):
 
     return user, high
 
-def app(user):    
+def app():    
+
+    st.sidebar.title('User Selection')
+    user = st.sidebar.selectbox(
+        'Pick a user id from the list:',
+        ('389', '6323', '2437'))
 
     user_df, high_df = get_data(user)
+
+    max = user_df['Avg duration'].max()
 
     st.header("Patterns Detection")
 
@@ -93,13 +100,13 @@ def app(user):
                 for val in vals:
                     if i == 0:
                         shapes_lst.append(dict(type='rect', xref='x', yref='y',
-                                x0=val, x1=val, y0=0, y1=8, line=dict(
+                                x0=val, x1=val, y0=0, y1=max, line=dict(
                                             color="rgb(228,26,28)",
                                             width=20,
                                         ), opacity=0.4, line_width=1, layer='below'))    
                     else:
                         shapes_lst.append(dict(type='rect', xref=f'x{i+1}', yref=f'y{i+1}',
-                                    x0=val, x1=val, y0=0, y1=8, line=dict(
+                                    x0=val, x1=val, y0=0, y1=max, line=dict(
                                             color="rgb(228,26,28)",
                                             width=10,
                                         ), opacity=0.4, line_width=20, layer='below'))
@@ -108,7 +115,7 @@ def app(user):
                 shapes=shapes_lst, height=1500, showlegend=False)
 
         fig.for_each_yaxis(lambda x: x.update(showgrid=False))
-        fig.update_yaxes(range=[0,8])
+        fig.update_yaxes(range=[0,max])
         st.plotly_chart(fig, use_container_width=True)
     
     st.header('Activity Overview')

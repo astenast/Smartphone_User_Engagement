@@ -41,11 +41,6 @@ PAGES = {
     "Info": details
 }
 
-st.sidebar.title('User Selection')
-user = st.sidebar.selectbox(
-    'Pick a user id from the list:',
-    ('389', 'user2', 'user3'))
-
 st.sidebar.title('Navigation')
 selection = st.sidebar.radio("Go to", list(PAGES.keys()))
 page = PAGES[selection]
@@ -53,9 +48,9 @@ page = PAGES[selection]
 if page == calendar_d3:
     page.app()
 elif page == classification:
-    page.app(user)
+    page.app()
 elif page == patterns:
-    page.app(user)
+    page.app()
 elif page == details:
     page.app()
 
