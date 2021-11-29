@@ -27,7 +27,7 @@ def get_data():
 st.set_page_config(page_title="Smartphone Addiction Tracker", page_icon=':chart_with_upwards_trend:', layout="wide")
 
 html_temp ="""
-    <div style="background-color:#9EA2FF;padding:1.5px">
+    <div style="background-color:#778AAE;padding:1.5px">
     <font color=\"#FFFFFF\" size=\"32\"><strong><center>Smartphone Addiction Tracker</center></strong></font>
     </div><br>"""
 st.markdown(html_temp, unsafe_allow_html=True)
@@ -41,11 +41,6 @@ PAGES = {
     "Info": details
 }
 
-st.sidebar.title('User Selection')
-user = st.sidebar.selectbox(
-    'Pick a user id from the list:',
-    ('389', 'user2', 'user3'))
-
 st.sidebar.title('Navigation')
 selection = st.sidebar.radio("Go to", list(PAGES.keys()))
 page = PAGES[selection]
@@ -55,7 +50,7 @@ if page == calendar_d3:
 elif page == classification:
     page.app()
 elif page == patterns:
-    page.app(user)
+    page.app()
 elif page == details:
     page.app()
 
