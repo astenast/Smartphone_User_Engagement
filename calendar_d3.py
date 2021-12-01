@@ -19,17 +19,6 @@ def app():
 
     st.header("Calendar")
 
-    left, right = st.columns(2)
-
-    with left:
-        option1 = st.selectbox(
-        'Filter by Sessions or Duration:',
-        ('Sessions', 'Duration'))
-    with right:
-        option2 = st.selectbox(
-        'Pick type of visualization:',
-        ('Relative Daily change', 'Change across all time'))
-
 
     observable("Calendar", 
         notebook="@astenast/digital_media_project",

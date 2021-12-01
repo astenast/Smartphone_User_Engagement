@@ -7,22 +7,6 @@ import calendar_d3, classification, patterns, details
 import warnings
 warnings.filterwarnings("ignore")
 
-@st.cache(allow_output_mutation=True)
-def get_data():
-    df = pd.read_csv("data/sample_data.csv", index_col='Unnamed: 0')
-    df = df[df['duration_min'] < 30]
-
-    # create quantiles
-    quantiles = df['duration_min'].quantile([.33, .66, .98, 1])
-
-    # labeling of groups
-    df['group'] = 'extreme'
-    df['group'][df['duration_min'] <= quantiles[.98]] = 'high'
-    df['group'][df['duration_min'] <= quantiles[.66]] = 'mid'
-    df['group'][df['duration_min'] <= quantiles[.33]] = 'low' 
-
-    return df
-
 
 st.set_page_config(page_title="Smartphone Addiction Tracker", page_icon=':chart_with_upwards_trend:', layout="wide")
 
@@ -31,8 +15,6 @@ html_temp ="""
     <font color=\"#FFFFFF\" size=\"32\"><strong><center>Smartphone Addiction Tracker</center></strong></font>
     </div><br>"""
 st.markdown(html_temp, unsafe_allow_html=True)
-
-df = get_data()
 
 PAGES = {
     "Introduction": calendar_d3,

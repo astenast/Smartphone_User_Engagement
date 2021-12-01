@@ -60,65 +60,56 @@ def app():
 
     st.header("Patterns Detection")
 
-    left, right = st.columns([1,3])
 
-    with left:
+    fig = make_subplots(rows=7, cols=1, shared_xaxes=True, subplot_titles=days, vertical_spacing=0.05)
+    xpoints = {}
 
-        st.markdown('Explain plot and highlighted areas.')
+    for i, day in enumerate(user_df.day.unique()):
+        periods = []
+        df_tmp = user_df[(user_df.day == day)]
+        fig.add_trace(go.Scatter(x=df_tmp['hour_period'].astype(dtype=str), 
+                                    y=df_tmp['Avg duration'], fill='tonexty',  name=day, fillcolor='rgba(145, 211, 199, 0.6)',
+                                    mode='lines', line_color='rgb(145, 211, 199)'),
+                row=i+1, col=1)
 
-    with right:
+        for period in df_tmp.hour_period.unique():
 
-        fig = make_subplots(rows=7, cols=1, shared_xaxes=True, subplot_titles=days, vertical_spacing=0.05)
-        xpoints = {}
+            extreme_dur = high_df[(high_df.day == days[i]) & (high_df.hour_period == period)]['Avg duration'].values[0]
+            
+            duration = df_tmp[df_tmp.hour_period ==  period]['Avg duration'].values[0]
 
-        for i, day in enumerate(user_df.day.unique()):
-            periods = []
-            df_tmp = user_df[(user_df.day == day)]
-            fig.add_trace(go.Scatter(x=df_tmp['hour_period'].astype(dtype=str), 
-                                     y=df_tmp['Avg duration'], fill='tonexty',  name=day, fillcolor='rgba(145, 211, 199, 0.6)',
-                                     mode='lines', line_color='rgb(145, 211, 199)'),
-                    row=i+1, col=1)
+            if (extreme_dur > 0) & (duration > 0):
 
-            for period in df_tmp.hour_period.unique():
+                if (duration >= extreme_dur):
+                    periods.append(period)
 
-                extreme_dur = high_df[(high_df.day == days[i]) & (high_df.hour_period == period)]['Avg duration'].values[0]
-                
-                duration = df_tmp[df_tmp.hour_period ==  period]['Avg duration'].values[0]
-
-                if (extreme_dur > 0) & (duration > 0):
-
-                    if (duration >= extreme_dur):
-                        periods.append(period)
-
-            xpoints[i] = periods
+        xpoints[i] = periods
 
 
-        shapes_lst = []
+    shapes_lst = []
 
-        for i, vals in xpoints.items():
-            if len(vals) > 0:
-                for val in vals:
-                    if i == 0:
-                        shapes_lst.append(dict(type='rect', xref='x', yref='y',
+    for i, vals in xpoints.items():
+        if len(vals) > 0:
+            for val in vals:
+                if i == 0:
+                    shapes_lst.append(dict(type='rect', xref='x', yref='y',
+                            x0=val, x1=val, y0=0, y1=max, line=dict(
+                                        color="rgb(228,26,28)",
+                                        width=20,
+                                    ), opacity=0.4, line_width=1, layer='below'))    
+                else:
+                    shapes_lst.append(dict(type='rect', xref=f'x{i+1}', yref=f'y{i+1}',
                                 x0=val, x1=val, y0=0, y1=max, line=dict(
-                                            color="rgb(228,26,28)",
-                                            width=20,
-                                        ), opacity=0.4, line_width=1, layer='below'))    
-                    else:
-                        shapes_lst.append(dict(type='rect', xref=f'x{i+1}', yref=f'y{i+1}',
-                                    x0=val, x1=val, y0=0, y1=max, line=dict(
-                                            color="rgb(228,26,28)",
-                                            width=10,
-                                        ), opacity=0.4, line_width=20, layer='below'))
+                                        color="rgb(228,26,28)",
+                                        width=10,
+                                    ), opacity=0.4, line_width=20, layer='below'))
 
-        fig.update_layout(
-                shapes=shapes_lst, height=1500, showlegend=False)
+    fig.update_layout(
+            shapes=shapes_lst, height=1500, showlegend=False)
 
-        fig.for_each_yaxis(lambda x: x.update(showgrid=False))
-        fig.update_yaxes(range=[0,max])
-        st.plotly_chart(fig, use_container_width=True)
-    
-    st.header('Activity Overview')
+    fig.for_each_yaxis(lambda x: x.update(showgrid=False))
+    fig.update_yaxes(range=[0,max])
+    st.plotly_chart(fig, use_container_width=True)
 
 
 
